@@ -133,3 +133,12 @@ to intervene to uphold that code of conduct.
 
 [CoC]: https://www.rust-lang.org/policies/code-of-conduct
 [team]: https://github.com/rust-embedded/wg#the-cortex-m-team
+
+## download to hardware
+- bin文件 `arm-none-eabi-objcopy -O binary stm32app stm32hex.bin`
+- hex文件 `arm-none-eabi-objcopy -O ihex stm32app stm32hex.hex`
+
+参考：
+1. [arm-none-eabi](http://www.360doc.com/content/19/0803/12/38894361_852739422.shtml)
+2. [FlyMcu](https://blog.csdn.net/weixin_42108484/article/details/80519038)
+3. [STM32F103 Rust](https://jonathanklimt.de/electrics/programming/rust-STM32F103-blink/)

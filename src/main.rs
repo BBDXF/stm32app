@@ -1,20 +1,72 @@
 #![no_std]
 #![no_main]
 
-// pick a panicking behavior
-use panic_halt as _; // you can put a breakpoint on `rust_begin_unwind` to catch panics
-// use panic_abort as _; // requires nightly
-// use panic_itm as _; // logs messages over ITM; requires ITM support
-// use panic_semihosting as _; // logs messages to the host stderr; requires a debugger
+extern crate stm32f4;
+extern crate panic_halt;
+extern crate cortex_m_rt;
 
-use cortex_m::asm;
 use cortex_m_rt::entry;
+use stm32f4::stm32f407;
 
+// use `main` as the entry point of this application
 #[entry]
 fn main() -> ! {
-    asm::nop(); // To not have main optimize to abort in release mode, remove when you add code
+    // get handles to the hardware
+    let peripherals = stm32f407::Peripherals::take().unwrap();
 
-    loop {
-        // your code goes here
+    let pf = &peripherals.GPIOF;
+    let rcc = &peripherals.RCC;
+
+    // enable system clock RCC for gpiof
+    rcc.ahb1enr.write(|w|{
+        w.gpiofen().set_bit()
+    });
+
+    // config GPIOF pin9 and pin10 for led
+    {
+        // 1. mode 01 通用输出
+        pf.moder.write(|w|{
+            w.moder9().output()
+                .moder10().output()
+        });
+        // 2. otype 0 推挽输出
+        pf.otyper.write(|w|{
+            w.ot9().push_pull()
+                .ot10().push_pull()
+        });
+        // 3. ospeed 10, 50MHz high speed
+        pf.ospeedr.write(|w|{
+            w.ospeedr9().high_speed()
+                .ospeedr10().high_speed()
+        });
+        // 4. pup 01， 上拉
+        pf.pupdr.write(|w|{
+            w.pupdr9().pull_up()
+                .pupdr10().pull_up()
+        });
+        // 5. idr/odr/bsrr
+        // by condition to read or set
+        pf.odr.reset();
+    }
+
+    loop{
+        // pf.odr.write(|w| {
+        //     w.odr9().set_bit()
+        //         .odr10().clear_bit()
+        // });
+        pf.bsrr.write(|w|{
+            w.bs9().set_bit()
+                .br10().set_bit()
+        });
+        cortex_m::asm::delay(168*10000*3);
+        // pf.odr.write(|w| {
+        //     w.odr9().clear_bit()
+        //         .odr10().set_bit()
+        // });
+        pf.bsrr.write(|w|{
+            w.br9().set_bit()
+                .bs10().set_bit()
+        });
+        cortex_m::asm::delay(168*10000*3);
     }
 }
