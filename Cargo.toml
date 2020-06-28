@@ -6,23 +6,16 @@ name = "stm32app"
 version = "0.1.0"
 
 [dependencies]
+embedded-hal = "*"
+nb = "*"
 cortex-m = "*"
 cortex-m-rt = "*"
-cortex-m-semihosting = "*"
+# Panic behaviour, see https://crates.io/keywords/panic-impl for alternatives
 panic-halt = "*"
 
-# Uncomment for the panic example.
-# panic-itm = "0.4.1"
-
-# Uncomment for the allocator example.
-# alloc-cortex-m = "0.3.5"
-
-# Uncomment for the device example.
-# Update `memory.x`, set target to `thumbv7em-none-eabihf` in `.cargo/config`,
-# and then use `cargo build --examples device` to build it.
- [dependencies.stm32f4]
- features = ["stm32f407", "rt"]
- version = "*"
+[dependencies.stm32f4xx-hal]
+version = "*"
+features = ["rt", "stm32f407"] # replace the model of your microcontroller here
 
 
 [profile.release]
